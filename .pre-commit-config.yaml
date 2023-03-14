@@ -1,0 +1,23 @@
+repos:
+  # prepare commit message hook
+  # will get ticket number from branch name, if exists, and
+  # prepend to the message
+  - repo: https://github.com/avilaton/add-msg-issue-prefix-hook
+    rev: v0.0.5  # Use the ref you want to point at
+    hooks:
+      - id: add-msg-issue-prefix
+        stages: [prepare-commit-msg]
+
+  # Black and Isort lint hooks.
+#  - repo: https://github.com/psf/black
+#    rev: 22.8.0
+#    hooks:
+#      - id: black
+#        stages: [commit, merge-commit]
+#        args: [--target-version=py310]
+  - repo: https://github.com/pycqa/isort
+    rev: 5.12.0
+    hooks:
+      - id: isort
+        name: isort (python)
+        stages: [commit, merge-commit]

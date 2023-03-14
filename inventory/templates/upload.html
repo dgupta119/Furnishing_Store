@@ -1,0 +1,27 @@
+<style>
+.form-group {
+  margin-bottom: 20px;
+}
+</style>
+{% extends 'admin/base_site.html' %}
+{% block content %}
+  <h1>Upload {{view_name}} JSON file</h1>
+  <form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    <div class="form-group">
+      <label for="file">File:</label>
+      <input type="file" class="form-control" id="file" name="file">
+    </div>
+    <div class="form-group">
+      <button type="submit" class="btn btn-primary">Upload</button>
+    </div>
+  </form>
+
+  {% if view_name == "Articles" %}
+    <h2>Example of Articles JSON:</h2>
+    <pre>{{ articles_json|safe }}</pre>
+  {% elif view_name == "Products Config" %}
+    <h2>Example of Products Config JSON:</h2>
+    <pre>{{ products_json|safe }}</pre>
+  {% endif %}
+{% endblock %}
