@@ -68,3 +68,12 @@ class ArticleListCreateView(generics.ListCreateAPIView):
 
     queryset = Article.objects.all()
     serializer_class = ArticleSerializer
+
+class ArticleRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
+    """
+    A view to retrieve, update, and destroy product configurations.
+    """
+
+    queryset = Article.objects.all()
+    serializer_class = ArticleSerializer
+

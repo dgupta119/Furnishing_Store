@@ -38,12 +38,12 @@ class ProductView(View):
             data = (
                 ProductArticle.objects.values("product_id", "product__name")
                 .annotate(
-                    article_stock=ExpressionWrapper(
+                    product_stock=ExpressionWrapper(
                         Min(F("article__stock") / F("quantity")),
                         output_field=models.IntegerField(),
                     )
                 )
-                .values("product_id", "product__name", "article_stock")
+                .values("product_id", "product__name", "product_stock")
             )
 
             # Filter the data based on the specified product_id, if present
@@ -60,7 +60,7 @@ class ProductView(View):
                     {
                         "id": d["product_id"],
                         "name": d["product__name"],
-                        "stock": d["article_stock"],
+                        "stock": d["product_stock"],
                     }
                     for d in data
                 ]
@@ -92,31 +92,40 @@ class ProductSellView(View):
         :return: An HTTP response indicating the success or failure of the sale.
         """
         try:
-            # Get all the articles associated with the product
-            product_article_entries = ProductArticle.objects.filter(
-                product_id=product_id
+            product_article_entries = (
+                ProductArticle.objects.filter(product_id=product_id).values("article_id", "quantity", "product__name")
+                .annotate(
+                    possible_product_stock=ExpressionWrapper(
+                        (F("article__stock") / F("quantity")),
+                        output_field=models.IntegerField(),
+                    )
+                )
+                .values("article_id", "quantity", "product__name", "possible_product_stock")
             )
+
+            if not product_article_entries:
+                return HttpResponse(f"We're sorry, but we couldn't find a product in our inventory with the ID {product_id}.")
+
+            product_stock = product_article_entries.aggregate(min_possible_product_stock=Min("possible_product_stock"))["min_possible_product_stock"]
+
+            given_quantity = (json.loads(request.body).get("quantity", DEFAULT_QUANTITY_TO_SELL) if request.body else DEFAULT_QUANTITY_TO_SELL)
+
+            if given_quantity > product_stock  or given_quantity < 0:
+                return HttpResponseBadRequest(f"Please enter a valid quantity for product ID {product_id}. We currently have {product_stock} units in stock.")
+
 
             # For each article, update its stock level based on the quantity sold
             for entry in product_article_entries:
-                article_id = entry.article_id
-                quantity = (
-                    json.loads(request.body).get("quantity", DEFAULT_QUANTITY_TO_SELL)
-                    if request.body
-                    else DEFAULT_QUANTITY_TO_SELL
-                )
+                article_id = entry["article_id"]
                 article = Article.objects.get(id=article_id)
-                article.stock -= quantity * entry.quantity
+                article.stock -= given_quantity * entry["quantity"]
                 article.save()
 
             # Return a success response
-            return HttpResponse("Product sold successfully.")
+            return HttpResponse(f"Product {product_article_entries[0]['product__name']} with quantity {given_quantity} sold successfully.")
         except (ProductArticle.DoesNotExist, Article.DoesNotExist):
             # Return a 404 response for invalid product or article ids
             return HttpResponseNotFound("Invalid product id or article id.")
-        except ValueError:
-            # Return a 400 response for invalid quantity values
-            return HttpResponseBadRequest("Invalid quantity.")
         except Exception as e:
             # Return a 405 response for other errors
             return HttpResponseNotAllowed("Method not allowed.")

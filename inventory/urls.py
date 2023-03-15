@@ -1,8 +1,9 @@
 from django.contrib import admin
 from django.urls import path
 
-from inventory.views import (ArticleListCreateView, ArticleUploadView,
-                             ProductConfigListCreateView,
+from inventory.views import (ArticleListCreateView,
+                             ArticleRetrieveUpdateDestroyView,
+                             ArticleUploadView, ProductConfigListCreateView,
                              ProductConfigRetrieveUpdateDestroyView,
                              ProductConfigUploadView, ProductSellView,
                              ProductView)
@@ -24,6 +25,12 @@ urlpatterns = [
     ),
     # Path to list and create articles
     path("articles/", ArticleListCreateView.as_view(), name="article-list-create"),
+    # Path to retrieve, update, and delete a specific article
+    path(
+        "articles/<int:pk>/",
+        ArticleRetrieveUpdateDestroyView.as_view(),
+        name="article-retrieve-update-destroy",
+    ),
     # Path to list and create product configurations
     path(
         "products-config/",

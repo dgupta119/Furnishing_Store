@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Clickable URLs</title>
+</head>
+<body>
+	<h1>GET URLs:</h1>
+	<ul>
+		<li><a href="http://localhost:8000/inventory/articles/"  target="_blank" rel="noopener noreferrer">articles/ - List and create articles</a></li>
+		<li><a href="http://localhost:8000/inventory/articles/1/"  target="_blank" rel="noopener noreferrer">Retrieve a specific article by ID</a></li>
+		<li><a href="http://localhost:8000/inventory/products-config/"  target="_blank" rel="noopener noreferrer">List and create product configurations</a></li>
+		<li><a href="http://localhost:8000/inventory/products-config/1/"  target="_blank" rel="noopener noreferrer">Retrieve, update, and delete a specific product configuration</a></li>
+		<li><a href="http://localhost:8000/inventory/products/"  target="_blank" rel="noopener noreferrer">List all products which are available in inventory</a></li>
+		<li><a href="http://localhost:8000/inventory/products/14/"  target="_blank" rel="noopener noreferrer">Retrieve a specific product by ID</a></li>
+	</ul>
+	<h1> PUT Urls: </h1>
+	<p> Use curl request to sell the product, to run this you can use CMD or Postman or any other API testing platform </p>
+<li>curl -X "PUT" http://localhost:8000/inventory/products/15/sell/ -H "Content-Type: application/json" </li>
+</body>
+</html>
